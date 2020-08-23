@@ -74,6 +74,8 @@ data GraphConfig = GraphConfig {
   , graphLabel :: Maybe T.Text
   -- | The width (in pixels) of the graph widget (default 50)
   , graphWidth :: Int
+  -- | The height (in pixels) of the graph widget (default 20)
+  , graphHeight :: Int
   -- | The direction in which the graph will move as time passes (default LEFT_TO_RIGHT)
   , graphDirection :: GraphDirection
   }
@@ -90,6 +92,7 @@ defaultGraphConfig =
   , graphHistorySize = 20
   , graphLabel = Nothing
   , graphWidth = 50
+  , graphHeight = 20
   , graphDirection = LEFT_TO_RIGHT
   }
 
@@ -226,7 +229,7 @@ graphNew cfg = liftIO $ do
                            , graphConfig = cfg
                            }
 
-  Gtk.widgetSetSizeRequest drawArea (fromIntegral $ graphWidth cfg) (-1)
+  Gtk.widgetSetSizeRequest drawArea (fromIntegral $ graphWidth cfg) (fromIntegral $ graphHeight cfg)
   _ <- Gtk.onWidgetDraw drawArea $ \ctx -> renderWithContext
        (drawGraph mv drawArea) ctx >> return True
   box <- Gtk.boxNew Gtk.OrientationHorizontal 1
@@ -238,8 +241,10 @@ graphNew cfg = liftIO $ do
       Gtk.labelSetMarkup l lbl
       Gtk.boxPackStart box l False False 0
 
-  Gtk.widgetSetVexpand drawArea True
-  Gtk.widgetSetVexpand box True
+  Gtk.widgetSetValign drawArea Gtk.AlignCenter
+  Gtk.widgetSetValign box Gtk.AlignCenter
+  Gtk.widgetSetVexpand drawArea False
+  Gtk.widgetSetVexpand box False
   Gtk.boxPackStart box drawArea True True 0
   Gtk.widgetShowAll box
   giBox <- Gtk.toWidget box
